@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# List all users
+echo "Listing all users:"
+users=($(cut -f1 -d: /etc/passwd))
+for i in "${!users[@]}"; do
+    echo "$i) ${users[$i]}"
+done
+
+# Prompt user to select a user
+echo -n "Select a user [0-${#users[@]}]: "
+read selected_user_index
+
+# Verify that user selection is valid
+if ! [[ "$selected_user_index" =~ ^[0-9]+$ ]] || ((selected_user_index < 0 || selected_user_index >= ${#users[@]})); then
+    echo "Invalid user selection."
+    exit 1
+fi
+
+selected_user=${users[$selected_user_index]}
+echo "Selected user: $selected_user"
+
+# List all applications that the selected user can execute with root privileges
+echo "Listing all applications that $selected_user can execute as root:"
+sudo -lU "$selected_user"
